@@ -1,0 +1,398 @@
+in SQL Quaries
+
+ 
+
+SELECT *
+
+FROM PORTFORLIOPROJECT.. NASHVILLEHOUSING
+
+ 
+
+--Standardize Data Format
+
+ 
+
+// to format date to normal date format
+
+SELECT  saledate, CONVERT(DATE,SALEDATE)
+
+FROM PORTFORLIOPROJECT. NASHVILLEHOUSING    ## IF THIS DOES NOT WORK
+
+ 
+
+UPDATE NashvilleHousing
+
+SET SALEDATE = CONVERT (DATE, SALEDATE)
+
+ 
+
+a)      
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD SALESDATECONVERTED DATE;
+
+
+b)     
+
+UPDATE NashvilleHousing
+
+SET SALEDATeconverted = CONVERT (DATE, SALEDATE)
+
+
+ 
+
+--Populate Property Address data ## changing property address
+
+ 
+
+Select Propertyaddress
+
+From portfolioproject..nashvillehousing
+
+Where propertyaddress is null
+
+ 
+
+## here when there are mixing value but there are values that are same
+
+ 
+
+Select  a.parcelID,a.propertyaddress, b.parcelId, b.Propertyaddress, ISNULL (A.PROPERTYADDRESS, B.PROPERTYADDRESS) # HERE it means when its null change a.propertyaddress to b.propertyaddress
+
+ 
+
+From PortfolioProject..Nashvillehousing a
+
+Join portfolioproject..nashvillehousing b
+
+On a.parcelId = b.parcelid
+
+And a.[uniqueid] <> b.[uniqueid]
+
+ 
+
+UPDATE A
+
+SET PROPERTYADDRESS = ISNULL (PROPERTYADDRESS,B.PROPERTYADDRESS)
+
+FROM PORTFOLIOPROJECT..NASHVILLEHOUSING A
+
+JOIN PROJECTPORTFOLIO..NASHVILLEHOUSING B
+
+ON A.PARCELID = B. PARCELID
+
+AND A .[UNIQUEID] <> B.[UNIQUEID]
+
+WHERE A.PROPERTYADDRESS IS NULL
+
+ 
+
+## if you don’t have an alternative address you can do
+
+ 
+
+UPDATE A
+
+SET PROPERTYADDRESS = ISNULL (PROPERTYADDRESS, ‘No address’)
+
+FROM PORTFOLIOPROJECT..NASHVILLEHOUSING A
+
+JOIN PROJECTPORTFOLIO..NASHVILLEHOUSING B
+
+ON A.PARCELID = B. PARCELID
+
+AND A .[UNIQUEID] <> B.[UNIQUEID]
+
+WHERE A.PROPERTYADDRESS IS NULL
+ 
+
+--Breaking out Address into Individual Columns (Address, City, State)
+
+ 
+
+SELECT  propertyaddress
+
+FROM PORTFORLIOPROJECT. NASHVILLEHOUSING  
+
+ 
+
+## Here looking at the property and starting from the firs(1)t value until the comma and -1 is to get rid of the comma
+
+ 
+
+## this shows only the first half of the address
+
+Select
+
+Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) -1 ) AS ADDRESS
+
+FROM PORTFORLIOPROJECT. NASHVILLEHOUSING      
+
+ 
+
+Select
+
+Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) -1 ) AS ADDRESS
+
+, Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) +1 ), LEN (PROPERTYADDRESS)) AS ADDRESS
+
+ 
+
+FROM PORTFORLIOPROJECT. NASHVILLEHOUSING      
+
+
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD propertysplitaddress nvarchar (255);
+ 
+
+UPDATE NashvilleHousing
+
+SET PROPERTYSPLITADDRESS = Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) -1 )
+
+ 
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD PROPERTYSPLITCITYNVARCHAR (255);
+
+ 
+
+UPDATE NashvilleHousing
+
+SET PROPERTYSPLITCITY  = Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) -1 ) AS ADDRESS
+
+, Substring (propertyaddress, 1, CHARINDEX(‘,’, PROPERTYADDRESS) +1 ), LEN (PROPERTYADDRESS))
+
+ 
+
+SELECT *
+
+From portfolioproject.dbo.nashvillehousing
+
+ 
+
+--splitting owner address ## Parse is easier than substring..Pase looks for being only no other characters so replace the comman with period.
+
+ 
+
+SELECT  ownerAddress
+
+From portfolioproject.dbo.nashvillehousing
+
+ 
+
+## this will give a broken out of address, however, it does things backward so having the 3,2,1 in this scenario is to start with address, city, and state.
+
+SELECT
+
+Parsename (replace(owneraddress, ‘,’, ‘.’), 3)
+
+, Parsename (replace(owneraddress, ‘,’, ‘.’), 2)
+
+, Parsename (replace(owneraddress, ‘,’, ‘.’), 1)
+
+ 
+
+From Portfolioproject.dbo.NashvilleHousing
+
+ 
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD PROPERTYSPLITaddress VARCHAR (255);
+
+ 
+
+ 
+
+UPDATE NashvilleHousing
+
+SET PROPERTYSPLITaddress  = Parsename (replace(owneraddress, ‘,’, ‘.’), 3)
+
+ 
+
+ 
+
+ 
+
+ 
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD ownersplitcity VARCHAR (255);
+
+ 
+
+ 
+
+UPDATE NashvilleHousing
+
+SET PROPERTYSPLITCITY  = Parsename (replace(owneraddress, ‘,’, ‘.’), 2)
+
+ 
+
+ 
+
+ 
+
+ALTER TABLE NASHVILLEHOUSING
+
+ADD PROPERTYSPLITstate NVARCHAR (255);
+
+ 
+
+ 
+
+UPDATE NashvilleHousing
+
+SET ownersplitstate  = Parsename (replace(owneraddress, ‘,’, ‘.’), 1)
+
+ 
+
+ 
+
+Select *
+
+ 
+
+From portfolioProject.dbo.Nashvillehousing
+
+ 
+---- Change Y and N to yes and No in Sold as Vacant field
+
+ 
+
+ 
+
+SELECT soldasvacant
+
+, case when soldasvacant = ‘Y’ then ‘Yes’
+
+when soldasvacant =’N’ then ‘No’
+
+else soldasvacant
+
+End
+
+From portfolioProject.dbo.Nashvillehousing
+
+ 
+
+ 
+
+ 
+
+ 
+
+Update nashvillehousing
+
+Set soldasvacant = case when soldasvacant = ‘Y’ then ‘Yes’
+
+when soldasvacant =’N’ then ‘No’
+
+else soldasvacant
+
+End
+
+ 
+
+----REMOVE DUPLICATES
+
+ 
+
+SELECT *,
+
+            ROW_NUMBER() OVER (
+
+            PARTITION BY PARCELID,
+
+                                    PROPERTYADDRESS,
+
+                                    SALEPRICE,
+
+                                    SALEDATE,
+
+                                    LEGALREFERENCE
+
+                                    ORDER  BY
+
+                                                UNIQUEID
+
+                                    ) ROW_NUM  
+
+FROM PORTFOLIOPROJECT.DBO.NASHVILLEHOUSING
+
+ORDER BY PARCELID
+
+ 
+
+TO QUERY FROM THE CTE
+
+ 
+
+WITH RowNumCTE as (
+
+SELECT *,
+
+            ROW_NUMBER() OVER (
+
+            PARTITION BY PARCELID,
+
+                                    PROPERTYADDRESS,
+
+                                    SALEPRICE,
+
+                                    SALEDATE,
+
+                                    LEGALREFERENCE
+
+                                    ORDER  BY
+
+                                                UNIQUEID
+
+                                    ) ROW_NUM  
+
+FROM PORTFOLIOPROJECT.DBO.NASHVILLEHOUSING
+
+)
+
+ 
+Select*
+
+From RowNumCTE
+
+
+ 
+
+Delete
+
+From RowNumCTE
+
+Where row_num >1
+
+
+
+----DELETE UNUSED columns ## Here will be delete all unnecessary column
+
+ 
+
+Select*
+
+From Portfolioproject.dbo.Nashvillehousing
+
+ 
+
+ALTER TABLE  portfolio.dbo.nashvillehousing
+
+Drop column owneraddress, taxdistrict, property address
+
+ 
+
+ 
+
+Select*
+
+From Portfolioproject.dbo.Na
